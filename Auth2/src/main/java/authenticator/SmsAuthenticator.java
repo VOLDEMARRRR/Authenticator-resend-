@@ -12,12 +12,12 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 
+
 public class SmsAuthenticator implements Authenticator {
 
     private static final String TPL_CODE = "login-sms.ftl";
     private static final String TPL_CODE2 = "login-sms-resent.ftl";
 
-    // сделать приватным класс отправки!!!
 
     @Override
     public void authenticate(AuthenticationFlowContext context) {
@@ -26,6 +26,13 @@ public class SmsAuthenticator implements Authenticator {
         KeycloakSession session = context.getSession();
         AuthenticatorConfigModel config = context.getAuthenticatorConfig();
         UserModel user = context.getUser();
+
+        //Проверка на наличие аутентификации
+        String smsAuth = user.getFirstAttribute("sms_auth");
+        if (!smsAuth.equals("enable")) {
+            context.success();
+            return;
+        }
 
         // Получение конфигураций и генерация кода и смс
         int length = Integer.parseInt(config.getConfig().get("length"));
